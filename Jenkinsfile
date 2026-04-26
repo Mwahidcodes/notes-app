@@ -20,7 +20,12 @@ node {
             mkdir -p ${appDir}
 
             echo "🔄 Syncing project using rsync..."
-            rsync -av --delete ./ ${appDir}
+            rsync -av --delete --exclude='node_modules' --exclude='.git' . ${appDir}
+            echo "📂 Checking deployed frontend..."
+            ls -la ${appDir}/frontend
+
+            echo "📂 Checking package.json..."
+            cat ${appDir}/frontend/package.json || echo "❌ package.json missing"
 
             cd ${appDir}
 
