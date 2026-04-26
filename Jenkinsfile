@@ -16,9 +16,8 @@ node {
         echo '🚀 Deploying full notes-app to EC2'
 
         sh """
-            echo "📁 Creating app directory..."
-            sudo mkdir -p ${appDir}
-            sudo chown -R jenkins:jenkins ${appDir}
+            echo "📁 Ensuring app directory exists..."
+            mkdir -p ${appDir}
 
             echo "🔄 Syncing project using rsync..."
             rsync -av --delete --exclude='.git' --exclude='node_modules' ./ ${appDir}
@@ -42,7 +41,6 @@ node {
 
             echo "🛑 Restarting backend with PM2..."
             cd ../backend
-            sudo npm install -g pm2 || true
             pm2 delete notes-backend || true
             pm2 start server.js --name notes-backend
 
@@ -53,7 +51,7 @@ node {
 
             pm2 save
 
-            echo "✅ Notes App deployed successfully!"
+            echo "🎉 Notes App deployed successfully!"
         """
     }
 }
