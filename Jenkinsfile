@@ -7,7 +7,7 @@ node {
     }
 
     stage('Clone Repo'){
-        echo '📥 Cloning notes-app repo'
+        echo '📥 Cloning notes-app repo cleanly'
         git branch: 'main',
             url: 'https://github.com/Mwahidcodes/notes-app.git'
     }
@@ -20,9 +20,13 @@ node {
             mkdir -p ${appDir}
 
             echo "🔄 Syncing project using rsync..."
-            rsync -av --delete --exclude='.git' --exclude='node_modules' ./ ${appDir}
+            rsync -av --delete ./ ${appDir}
 
             cd ${appDir}
+
+            echo "📂 DEBUG: Checking deployed files"
+            ls -la frontend
+            ls -la backend
 
             echo "📦 Installing backend dependencies..."
             cd backend
