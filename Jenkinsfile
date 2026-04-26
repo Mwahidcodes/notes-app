@@ -1,50 +1,59 @@
-pipeline {
-    agent any
+node {
+    def appDir = '/var/www/notes-app'
 
-    tools {
-        nodejs 'NodeJS-18'
+    stage('Clean Workspace'){
+        echo '🧹 Cleaning Jenkins Workspace'
+        deleteDir()
     }
 
-    stages {
-        stage('Clone') {
-            steps {
-                git branch: 'main',
-                    url: 'https://github.com/YOUR_USERNAME/notes-app.git'
-            }
-        }
+    stage('Clone Repo'){
+        echo '📥 Cloning notes-app repo'
+        git branch: 'main',
+            url: 'https://github.com/Mwahidcodes/notes-app.git'
+    }
 
-        stage('Backend Install') {
-            steps {
-                dir('backend') {
-                    sh 'npm install'
-                }
-            }
-        }
+    stage('Deploy Backend & Frontend'){
+        echo '🚀 Deploying full notes-app to EC2'
 
-        stage('Frontend Install & Build') {
-            steps {
-                dir('frontend') {
-                    sh 'npm install'
-                    sh 'npm run build'
-                }
-            }
-        }
+        sh """
+            echo "📁 Creating app directory..."
+            sudo mkdir -p ${appDir}
+            sudo chown -R jenkins:jenkins ${appDir}
 
-        stage('Deploy') {
-            steps {
-                sh '''
-                    cd backend
-                    echo "MONGO_URI=mongodb://localhost:27017/notesapp" > .env
-                    echo "PORT=5000" >> .env
-                    pm2 delete notes-backend || true
-                    pm2 start server.js --name notes-backend
+            echo "🔄 Syncing project using rsync..."
+            rsync -av --delete --exclude='.git' --exclude='node_modules' ./ ${appDir}
 
-                    cd ../frontend
-                    pm2 delete notes-frontend || true
-                    pm2 serve build 3000 --name notes-frontend --spa
-                    pm2 save
-                '''
-            }
-        }
+            cd ${appDir}
+
+            echo "📦 Installing backend dependencies..."
+            cd backend
+            npm install
+
+            echo "⚙️ Setting up backend env..."
+            echo "MONGO_URI=mongodb://localhost:27017/notesapp" > .env
+            echo "PORT=5000" >> .env
+
+            echo "📦 Installing frontend dependencies..."
+            cd ../frontend
+            npm install
+
+            echo "🏗️ Building frontend..."
+            npm run build
+
+            echo "🛑 Restarting backend with PM2..."
+            cd ../backend
+            sudo npm install -g pm2 || true
+            pm2 delete notes-backend || true
+            pm2 start server.js --name notes-backend
+
+            echo "🛑 Restarting frontend with PM2..."
+            cd ../frontend
+            pm2 delete notes-frontend || true
+            pm2 start npm --name notes-frontend -- start
+
+            pm2 save
+
+            echo "✅ Notes App deployed successfully!"
+        """
     }
 }
