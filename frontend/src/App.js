@@ -4,7 +4,7 @@ import NoteForm from './components/NoteForm';
 import NoteList from './components/NoteList';
 import './App.css';
 
-const API = "http://localhost:5000/api/notes";
+const API = "http://13.60.187.99:5000/api/notes";
 
 function App() {
   const [notes, setNotes] = useState([]);
