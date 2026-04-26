@@ -1,0 +1,46 @@
+body {
+  font-family: Arial;
+  background: #f5f6fa;
+}
+
+.app {
+  max-width: 800px;
+  margin: auto;
+  padding: 20px;
+}
+
+.note-form {
+  background: white;
+  padding: 20px;
+  margin-bottom: 20px;
+  border-radius: 10px;
+}
+
+.note-form input,
+.note-form textarea {
+  width: 100%;
+  margin: 10px 0;
+  padding: 10px;
+}
+
+.note-form button {
+  padding: 10px 20px;
+  background: #3498db;
+  color: white;
+  border: none;
+}
+
+.note-list {
+  display: grid;
+  gap: 10px;
+}
+
+.note-card {
+  background: white;
+  padding: 15px;
+  border-radius: 10px;
+}
+
+.note-actions button {
+  margin-right: 10px;
+}
